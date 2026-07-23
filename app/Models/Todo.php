@@ -13,4 +13,10 @@ class Todo extends Model
 
         return $this->belongsTo(User::class);
     }
+
+   protected $fillable = [
+        'title',
+        'description',
+        'user_id'
+   ];
 }
