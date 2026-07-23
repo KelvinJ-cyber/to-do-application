@@ -1,6 +1,5 @@
 # Todo List REST API
 
-
 ## Project Url: https://roadmap.sh/projects/todo-list-api
 
 A RESTful API built with **Laravel 13** and **PostgreSQL** for managing a personal to-do list, featuring full user authentication via **Laravel Sanctum**. Built as a backend practice project covering authentication, schema design, CRUD operations, authorization, and API security.
