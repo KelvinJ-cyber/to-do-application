@@ -1,58 +1,265 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Todo List REST API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Project Url: https://roadmap.sh/projects/todo-list-api
 
-## About Laravel
+A RESTful API built with **Laravel 13** and **PostgreSQL** for managing a personal to-do list, featuring full user authentication via **Laravel Sanctum**. Built as a backend practice project covering authentication, schema design, CRUD operations, authorization, and API security.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- User registration with hashed passwords
+- Token-based authentication (Laravel Sanctum)
+- Full CRUD for to-do items
+- Ownership-based authorization (users can only modify their own todos)
+- Pagination and filtering on the todo list endpoint
+- Centralized validation and error handling
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Component | Technology |
+|---|---|
+| Framework | Laravel 13 |
+| Language | PHP 8+ |
+| Database | PostgreSQL |
+| Auth | Laravel Sanctum (token-based) |
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP >= 8.2
+- Composer
+- PostgreSQL
+- Laravel CLI / Artisan
+## Installation
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+1. Clone the repository
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+   git clone <your-repo-url>
+   cd todo-api
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. Install dependencies
+```bash
+   composer install
+```
+Update `.env` with your PostgreSQL credentials:
+```
+   DB_CONNECTION=pgsql
+   DB_HOST=127.0.0.1
+   DB_PORT=5432
+   DB_DATABASE=todo_api
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+```
 
-## Contributing
+4. Generate the application key
+```bash
+   php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. Run migrations
+```bash
+   php artisan migrate
+```
 
-## Code of Conduct
+6. Start the development server
+```bash
+   php artisan serve
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The API will be available at `http://localhost:8000/api`.
 
-## Security Vulnerabilities
+## Authentication
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+All todo endpoints are protected and require a Bearer token, obtained from either the register or login endpoint.
 
-## License
+Include the token in every protected request:
+```
+Authorization: Bearer <your_token>
+Accept: application/json
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## API Endpoints
+
+### Register
+
+```
+POST /api/register
+```
+
+**Body**
+```json
+{
+  "name": "Kelvin Justine",
+  "email": "kelvinjus@example.com",
+  "password": "password123"
+}
+```
+
+**Response — 201**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+}
+```
+
+### Login
+
+```
+POST /api/login
+```
+
+**Body**
+```json
+{
+  "email": "kelvinjus@example.com",
+  "password": "password123"
+}
+```
+
+**Response — 200**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+}
+```
+
+**Response — 401 (invalid credentials)**
+```json
+{
+  "message": "Invalid credentials"
+}
+```
+
+### Create Todo
+
+```
+POST /api/todos
+```
+*Requires authentication*
+
+**Body**
+```json
+{
+  "title": "Buy groceries",
+  "description": "Buy milk, eggs, and bread"
+}
+```
+
+**Response — 201**
+```json
+{
+  "id": 1,
+  "title": "Buy groceries",
+  "description": "Buy milk, eggs, and bread"
+}
+```
+
+### Get Todos (paginated + filterable)
+
+```
+GET /api/todos?page=1&limit=10&title=groceries
+```
+*Requires authentication*
+
+| Query param | Required | Description |
+|---|---|---|
+| `page` | No (default: 1) | Page number |
+| `limit` | No (default: 10) | Items per page |
+| `title` | No | Partial match filter on todo title |
+
+**Response — 200**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Buy groceries",
+      "description": "Buy milk, eggs, and bread",
+      "user_id": 2,
+      "created_at": "2026-07-23T03:41:11.000000Z",
+      "updated_at": "2026-07-23T03:41:11.000000Z"
+    }
+  ],
+  "page": 1,
+  "limit": 10,
+  "total": 1
+}
+```
+
+### Update Todo
+
+```
+PUT /api/todos/{id}
+```
+*Requires authentication and ownership*
+
+**Body**
+```json
+{
+  "title": "Buy groceries",
+  "description": "Buy milk, eggs, bread, and cheese"
+}
+```
+
+**Response — 200**
+```json
+{
+  "id": 1,
+  "title": "Buy groceries",
+  "description": "Buy milk, eggs, bread, and cheese"
+}
+```
+
+**Response — 403 (not the owner)**
+```json
+{
+  "message": "Forbidden"
+}
+```
+
+**Response — 404 (todo not found)**
+```json
+{
+  "message": "Todo not found"
+}
+```
+
+### Delete Todo
+
+```
+DELETE /api/todos/{id}
+```
+*Requires authentication and ownership*
+
+**Response — 204** — No content
+
+**Response — 403 / 404** — same as update
+
+## Authorization Rules
+
+- Every todo endpoint (except register/login) requires a valid Sanctum token in the `Authorization` header.
+- Users can only view, update, or delete todos they created — enforced via a `user_id` ownership check on every mutating request.
+- Unauthenticated requests to protected routes return `401 Unauthenticated`.
+## Database Schema
+
+**users**
+| Column | Type |
+|---|---|
+| id | bigint, primary key |
+| name | string |
+| email | string, unique |
+| password | string (hashed) |
+| timestamps | created_at, updated_at |
+
+**todos**
+| Column | Type |
+|---|---|
+| id | bigint, primary key |
+| user_id | bigint, foreign key → users.id |
+| title | string |
+| description | text |
+| timestamps | created_at, updated_at |
+
+## Author
+
+Kelvin Justine
+
+
